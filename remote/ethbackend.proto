@@ -113,9 +113,9 @@ message EnginePayloadAttributes {
   types.H256 prevRandao = 3;
   types.H160 suggestedFeeRecipient = 4;
   repeated types.Withdrawal withdrawals = 5;
-  optional bool noTxPool = 4;
-  repeated bytes transactions = 5;
-  optional uint64 gasLimit = 6;
+  optional bool noTxPool = 6;
+  repeated bytes transactions = 7;
+  optional uint64 gasLimit = 8;
 }
 
 message EngineForkChoiceState {
