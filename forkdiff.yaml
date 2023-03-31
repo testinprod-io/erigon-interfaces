@@ -1,0 +1,17 @@
+title: "op-erigon-interfaces"  # Define the HTML page title
+footer: |  # define the footer with markdown
+  Fork-diff overview of [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interfaces](https://github.com/ledgerwatch/interfaces).
+base:
+  name: ledgerwatch/interfaces
+  url: https://github.com/ledgerwatch/interfaces
+  hash: 46fc5eaf28141568ad0ff7f54b7f454723e07b0a
+fork:
+  name: testinprod-io/erigon-interfaces
+  url: https://github.com/testinprod-io/erigon-interfaces
+  ref: refs/heads/op-erigon
+def:
+  title: "op-erigon-interfaces"
+  description: | # description in markdown
+    This is an overview of the changes in [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interface](https://github.com/ledgerwatch/interfaces),
+  globs:
+    - "remote/ethbackend.proto"
