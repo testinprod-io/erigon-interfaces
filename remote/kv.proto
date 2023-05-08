@@ -47,21 +47,22 @@ service KV {
   // Snapshots returns list of current snapshot files. Then client can just open all of them.
   rpc Snapshots(SnapshotsRequest) returns (SnapshotsReply);
 
-
-  //Temporal methods
-  rpc DomainGet(DomainGetReq) returns (DomainGetReply);
-  rpc HistoryGet(HistoryGetReq) returns (HistoryGetReply);
-
-  rpc IndexRange(IndexRangeReq) returns (IndexRangeReply);
-  //  rpc IndexStream(IndexRangeReq) returns (stream IndexRangeReply);
-
-
   // Range [from, to)
   // Range(from, nil) means [from, EndOfTable)
   // Range(nil, to)   means [StartOfTable, to)
   // If orderAscend=false server expecting `from`<`to`. Example: Range("B", "A")
   rpc Range(RangeReq) returns (Pairs);
-  //  rpc Stream(RangeReq) returns (stream Pairs);
+  //    rpc Stream(RangeReq) returns (stream Pairs);
+
+
+  //Temporal methods
+  rpc DomainGet(DomainGetReq) returns (DomainGetReply); // can return latest value or as of given timestamp
+  rpc HistoryGet(HistoryGetReq) returns (HistoryGetReply);
+
+  rpc IndexRange(IndexRangeReq) returns (IndexRangeReply);
+  rpc HistoryRange(HistoryRangeReq) returns (Pairs);
+  rpc DomainRange(DomainRangeReq) returns (Pairs);
+
 }
 
 enum Op {
@@ -90,7 +91,7 @@ enum Op {
 
 message Cursor {
   Op op = 1;
-  string bucketName = 2;
+  string bucket_name = 2;
   uint32 cursor = 3;
   bytes k = 4;
   bytes v = 5;
@@ -99,9 +100,9 @@ message Cursor {
 message Pair {
   bytes k = 1;
   bytes v = 2;
-  uint32 cursorID = 3; // send once after new cursor open
-  uint64 viewID = 4;   // return once after tx open. mdbx's tx.ViewID() - id of write transaction in db
-  uint64 txID = 5;     // return once after tx open. internal identifier - use it in other methods - to achieve consistant DB view (to read data from same DB tx on server).
+  uint32 cursor_id = 3; // send once after new cursor open
+  uint64 view_id = 4;   // return once after tx open. mdbx's tx.ViewID() - id of write transaction in db
+  uint64 tx_id = 5;     // return once after tx open. internal identifier - use it in other methods - to achieve consistant DB view (to read data from same DB tx on server).
 }
 
 enum Action {
@@ -123,7 +124,7 @@ message AccountChange {
   Action action = 3;
   bytes data = 4; // nil if there is no UPSERT in action
   bytes code = 5; // nil if there is no CODE in action
-  repeated StorageChange storageChanges = 6;
+  repeated StorageChange storage_changes = 6;
 }
 
 enum Direction {
@@ -133,24 +134,24 @@ enum Direction {
 
 // StateChangeBatch - list of StateDiff done in one DB transaction
 message StateChangeBatch {
-  uint64 stateVersionID = 1; // mdbx's tx.ID() - id of write transaction in db - where this changes happened
-  repeated StateChange changeBatch = 2;
-  uint64 pendingBlockBaseFee = 3; // BaseFee of the next block to be produced
-  uint64 blockGasLimit = 4; // GasLimit of the latest block - proxy for the gas limit of the next block to be produced
+  uint64 state_version_id = 1; // mdbx's tx.ID() - id of write transaction in db - where this changes happened
+  repeated StateChange change_batch = 2;
+  uint64 pending_block_base_fee = 3; // BaseFee of the next block to be produced
+  uint64 block_gas_limit = 4; // GasLimit of the latest block - proxy for the gas limit of the next block to be produced
 }
 
 // StateChange - changes done by 1 block or by 1 unwind
 message StateChange {
   Direction direction = 1;
-  uint64 blockHeight = 2;
-  types.H256 blockHash = 3;
+  uint64 block_height = 2;
+  types.H256 block_hash = 3;
   repeated AccountChange changes = 4;
   repeated bytes txs = 5;     // enable by withTransactions=true
 }
 
 message StateChangeRequest {
-  bool withStorage = 1;
-  bool withTransactions = 2;
+  bool with_storage = 1;
+  bool with_transactions = 2;
 }
 
 message SnapshotsRequest {
@@ -189,6 +190,7 @@ message DomainGetReq {
   bytes k = 3;
   uint64 ts = 4;
   bytes k2 = 5;
+  bool latest = 6; // if true, then `ts` ignored and return latest state (without history lookup)
 }
 
 message DomainGetReply{
@@ -228,6 +230,39 @@ message IndexRangeReply  {
 
   string next_page_token = 2;
 }
+
+message HistoryRangeReq {
+  uint64 tx_id = 1; // returned by .Tx()
+
+  // query params
+  string table = 2;
+  sint64 from_ts = 4;    // -1 means Inf
+  sint64 to_ts = 5;      // -1 means Inf
+  bool order_ascend = 6;
+  sint64 limit = 7;       // <= 0 means no limit
+
+  // pagination params
+  int32 page_size = 8;    // <= 0 means server will choose
+  string page_token = 9;
+}
+
+message DomainRangeReq {
+  uint64 tx_id = 1; // returned by .Tx()
+
+  // query params
+  string table = 2;
+  bytes from_key = 3;    // nil means Inf
+  bytes to_key = 4;      // nil means Inf
+  uint64 ts = 5;
+  bool latest = 6;      // if true, then `ts` ignored and return latest state (without history lookup)
+  bool order_ascend = 7;
+  sint64 limit = 8;       // <= 0 means no limit
+
+  // pagination params
+  int32 page_size = 9;    // <= 0 means server will choose
+  string page_token = 10;
+}
+
 
 message Pairs {
   repeated bytes keys = 1; // TODO: replace by lengtsh+arena? Anyway on server we need copy (serialization happening outside tx)
