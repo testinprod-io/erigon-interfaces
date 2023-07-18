@@ -24,15 +24,12 @@ service ETHBACKEND {
   // Update fork choice
   rpc EngineForkChoiceUpdated(EngineForkChoiceUpdatedRequest) returns (EngineForkChoiceUpdatedResponse);
 
-  // Fetch Execution Payload using its ID.
+  // Fetch the payload along with its blobs by ID.
   rpc EngineGetPayload(EngineGetPayloadRequest) returns (EngineGetPayloadResponse);
 
   rpc EngineGetPayloadBodiesByHashV1(EngineGetPayloadBodiesByHashV1Request) returns (EngineGetPayloadBodiesV1Response);
 
   rpc EngineGetPayloadBodiesByRangeV1(EngineGetPayloadBodiesByRangeV1Request) returns (EngineGetPayloadBodiesV1Response);
-
-  // Fetch the blobs bundle using its ID.
-  rpc EngineGetBlobsBundleV1(EngineGetBlobsBundleRequest) returns (types.BlobsBundleV1);
 
   // End of Engine API requests
   // ------------------------------------------------------------------------
@@ -98,10 +95,6 @@ message EngineGetPayloadRequest {
   uint64 payload_id = 1;
 }
 
-message EngineGetBlobsBundleRequest {
-  uint64 payload_id = 1;
-}
-
 enum EngineStatus {
   VALID = 0;
   INVALID = 1;
@@ -146,6 +139,7 @@ message EngineForkChoiceUpdatedResponse {
 message EngineGetPayloadResponse {
   types.ExecutionPayload execution_payload = 1;
   types.H256 block_value = 2;
+  types.BlobsBundleV1 blobs_bundle = 3;
 }
 
 message ProtocolVersionRequest {}
