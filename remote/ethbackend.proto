@@ -61,9 +61,6 @@ enum Event {
   NEW_SNAPSHOT = 3;
 }
 
-message PendingBlockReply {
-  bytes block_rlp = 1;
-}
 
 message EtherbaseRequest {}
 
@@ -150,6 +147,19 @@ message PeersReply {
 message AddPeerReply {
   bool success = 1;
 }
+
+message PendingBlockReply {
+  bytes block_rlp = 1;
+}
+
+message EngineGetPayloadBodiesByHashV1Request {
+  repeated types.H256 hashes = 1;
+}
+
+message EngineGetPayloadBodiesByRangeV1Request {
+  uint64 start = 1;
+  uint64 count = 2;
+} 
 
 message BorEventRequest {
   types.H256 bor_tx_hash = 1;
