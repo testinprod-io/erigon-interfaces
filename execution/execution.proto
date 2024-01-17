@@ -144,6 +144,7 @@ message AssembledBlockData {
     types.ExecutionPayload execution_payload = 1;
     types.H256 block_value = 2;
     types.BlobsBundleV1 blobs_bundle = 3;
+    types.H256 parent_beacon_block_root = 4;
 }
 
 message GetAssembledBlockResponse {
