@@ -1,9 +1,9 @@
-title: "op-erigon-interfaces"  # Define the HTML page title
-footer: |  # define the footer with markdown
-  Fork-diff overview of [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interfaces](https://github.com/ledgerwatch/interfaces).
+title: "op-erigon-interfaces" 
+footer: |  
+  Fork-diff overview of [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interfaces](https://github.com/erigontech/interfaces).
 base:
-  name: ledgerwatch/interfaces
-  url: https://github.com/ledgerwatch/interfaces
+  name: erigontech/interfaces
+  url: https://github.com/erigontech/interfaces
   hash: e1c4a1a4279ea0d1c74707fc199d69d76ba7594d
 fork:
   name: testinprod-io/erigon-interfaces
@@ -11,7 +11,14 @@ fork:
   ref: refs/heads/op-erigon
 def:
   title: "op-erigon-interfaces"
-  description: | # description in markdown
-    This is an overview of the changes in [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interface](https://github.com/ledgerwatch/interfaces),
-  globs:
-    - "remote/ethbackend.proto"
+  description: | 
+    This is an overview of the changes in [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interface](https://github.com/erigontech/interfaces).
+  sub:
+    - title: "Protocol Buffer Files"
+      description: |
+        op-erigon extends existing gRPC for new RPC definitions and extraneous data that Optimism utilizes. 
+      globs:
+      - "**/*.proto"
+ignore: 
+  - .gitignore
+  - _docs/*
