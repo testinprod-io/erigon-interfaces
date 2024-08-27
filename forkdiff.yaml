@@ -1,0 +1,24 @@
+title: "op-erigon-interfaces" 
+footer: |  
+  Fork-diff overview of [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interfaces](https://github.com/erigontech/interfaces).
+base:
+  name: erigontech/interfaces
+  url: https://github.com/erigontech/interfaces
+  hash: e1c4a1a4279ea0d1c74707fc199d69d76ba7594d
+fork:
+  name: testinprod-io/erigon-interfaces
+  url: https://github.com/testinprod-io/erigon-interfaces
+  ref: refs/heads/op-erigon
+def:
+  title: "op-erigon-interfaces"
+  description: | 
+    This is an overview of the changes in [op-erigon-interfaces](https://github.com/testinprod-io/erigon-interfaces), a fork of [erigon-interface](https://github.com/erigontech/interfaces).
+  sub:
+    - title: "Protocol Buffer Files"
+      description: |
+        op-erigon extends existing gRPC for new RPC definitions and extraneous data that Optimism utilizes. 
+      globs:
+      - "**/*.proto"
+ignore: 
+  - .gitignore
+  - _docs/*
