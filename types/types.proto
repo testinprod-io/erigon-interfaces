@@ -94,6 +94,10 @@ message BlobsBundleV1 {
   repeated bytes proofs = 3;
 }
 
+message RequestsBundle {
+  repeated bytes requests = 1;
+}
+
 // End of Engine API types
 // ------------------------------------------------------------------------
 
