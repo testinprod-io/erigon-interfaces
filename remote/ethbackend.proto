@@ -2,10 +2,11 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "types/types.proto";
+import "remote/bor.proto";
 
 package remote;
 
-option go_package = "./remote;remote";
+option go_package = "./remote;remoteproto";
 
 service ETHBACKEND {
   rpc Etherbase(EtherbaseRequest) returns (EtherbaseReply);
@@ -16,6 +17,9 @@ service ETHBACKEND {
 
   // Version returns the service version number
   rpc Version(google.protobuf.Empty) returns (types.VersionReply);
+
+  // Syncing returns a data object detailing the status of the sync process
+  rpc Syncing(google.protobuf.Empty) returns (SyncingReply);
 
   // ProtocolVersion returns the Ethereum protocol version number (e.g. 66 for ETH66).
   rpc ProtocolVersion(ProtocolVersionRequest) returns (ProtocolVersionReply);
@@ -33,6 +37,15 @@ service ETHBACKEND {
   // Request fields are optional - it's ok to request block only by hash or only by number
   rpc Block(BlockRequest) returns (BlockReply);
 
+  // High-level method - can read block body (only storage metadata) from db, snapshots or apply any other logic
+  rpc CanonicalBodyForStorage(CanonicalBodyForStorageRequest) returns (CanonicalBodyForStorageReply);
+
+  // High-level method - can find block hash by block number
+  rpc CanonicalHash(CanonicalHashRequest) returns (CanonicalHashReply);
+
+  // High-level method - can find block number by block hash
+  rpc HeaderNumber(HeaderNumberRequest) returns (HeaderNumberReply);
+
   // High-level method - can find block number by txn hash
   // it doesn't provide consistency
   rpc TxnLookup(TxnLookupRequest) returns (TxnLookupReply);
@@ -48,7 +61,13 @@ service ETHBACKEND {
   // PendingBlock returns latest built block.
   rpc PendingBlock(google.protobuf.Empty) returns (PendingBlockReply);
 
-  rpc BorEvent(BorEventRequest) returns (BorEventReply);
+  rpc BorTxnLookup(BorTxnLookupRequest) returns (BorTxnLookupReply);
+
+  rpc BorEvents(BorEventsRequest) returns (BorEventsReply);
+
+  rpc AAValidation(AAValidationRequest) returns (AAValidationReply);
+
+  rpc BlockForTxNum(BlockForTxNumRequest) returns(BlockForTxNumResponse);
 }
 
 enum Event {
@@ -64,23 +83,61 @@ enum Event {
 
 message EtherbaseRequest {}
 
-message EtherbaseReply { types.H160 address = 1; }
+message EtherbaseReply {types.H160 address = 1;}
 
 message NetVersionRequest {}
 
-message NetVersionReply { uint64 id = 1; }
+message NetVersionReply {uint64 id = 1;}
+
+message SyncingReply {
+  uint64 last_new_block_seen = 1;
+  uint64 frozen_blocks = 2;
+  uint64 current_block = 3;
+  bool syncing = 4;
+
+  message StageProgress {
+    string stage_name = 1;
+    uint64 block_number = 2;
+  }
+  repeated StageProgress stages = 5;
+  
+}
 
 message NetPeerCountRequest {}
 
-message NetPeerCountReply { uint64 count = 1; }
+message NetPeerCountReply {uint64 count = 1;}
 
 message ProtocolVersionRequest {}
 
-message ProtocolVersionReply { uint64 id = 1; }
+message ProtocolVersionReply {uint64 id = 1;}
 
 message ClientVersionRequest {}
 
-message ClientVersionReply { string node_name = 1; }
+message ClientVersionReply {string node_name = 1;}
+
+message CanonicalHashRequest {
+  uint64 block_number = 1;
+}
+
+message CanonicalHashReply {
+  types.H256 hash = 1;
+}
+
+message HeaderNumberRequest {
+  types.H256 hash = 1;
+}
+
+message HeaderNumberReply {
+  optional uint64 number = 1;
+}
+
+message CanonicalBodyForStorageRequest {
+  uint64 blockNumber = 1;
+}
+
+message CanonicalBodyForStorageReply {
+  bytes body = 1;
+}
 
 message SubscribeRequest {
   Event type = 1;
@@ -126,6 +183,7 @@ message TxnLookupRequest {
 
 message TxnLookupReply {
   uint64 block_number = 1;
+  uint64 tx_number = 2;
 }
 
 message NodesInfoRequest {
@@ -161,12 +219,19 @@ message EngineGetPayloadBodiesByRangeV1Request {
   uint64 count = 2;
 } 
 
-message BorEventRequest {
-  types.H256 bor_tx_hash = 1;
+message AAValidationRequest {
+  types.AccountAbstractionTransaction tx = 1;
 }
 
-message BorEventReply {
-  bool present = 1;
-  uint64 block_number = 2;
-  repeated bytes event_rlps = 3;
+message AAValidationReply {
+  bool valid = 1;
+}
+
+message BlockForTxNumRequest {
+    uint64 txnum = 1;
+}
+
+message BlockForTxNumResponse {
+    uint64 block_number = 1;
+    bool present = 2;
 }
