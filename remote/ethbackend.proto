@@ -58,6 +58,8 @@ service ETHBACKEND {
 
   rpc AddPeer(AddPeerRequest) returns (AddPeerReply);
 
+  rpc RemovePeer(RemovePeerRequest) returns (RemovePeerReply);
+
   // PendingBlock returns latest built block.
   rpc PendingBlock(google.protobuf.Empty) returns (PendingBlockReply);
 
@@ -68,6 +70,8 @@ service ETHBACKEND {
   rpc AAValidation(AAValidationRequest) returns (AAValidationReply);
 
   rpc BlockForTxNum(BlockForTxNumRequest) returns(BlockForTxNumResponse);
+
+  rpc MinimumBlockAvailable(google.protobuf.Empty) returns (MinimumBlockAvailableReply);
 }
 
 enum Event {
@@ -194,6 +198,10 @@ message AddPeerRequest {
   string url = 1;
 }
 
+message RemovePeerRequest {
+  string url = 1;
+}
+
 message NodesInfoReply {
   repeated types.NodeInfoReply nodes_info = 1;
 }
@@ -203,6 +211,10 @@ message PeersReply {
 }
 
 message AddPeerReply {
+  bool success = 1;
+}
+
+message RemovePeerReply {
   bool success = 1;
 }
 
@@ -234,4 +246,8 @@ message BlockForTxNumRequest {
 message BlockForTxNumResponse {
     uint64 block_number = 1;
     bool present = 2;
+}
+
+message MinimumBlockAvailableReply {
+  uint64 block_num = 1;
 }
